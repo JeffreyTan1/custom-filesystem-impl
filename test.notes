@@ -1,0 +1,9 @@
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==

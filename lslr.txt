@@ -1,0 +1,27 @@
+.:
+total 349
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers    466 Oct 25 15:41 aaa.notes
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers    466 Oct 25 15:41 aa.notes
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers    242 Oct 24 17:28 a.notes
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers     13 Oct 25 14:22 EF.txt
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers     13 Oct 20 20:09 ex.txt
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers      0 Oct 25 14:22 IF.txt
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers     10 Oct 25 14:22 invalid.notes
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers    325 Oct 24 18:12 leverage.txt
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers    295 Oct 24 18:17 lslr.scuffed
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers    135 Oct 15 16:09 Makefile
+drwxr-xr-x 2 s3851781 dg-adm-teaching-linux-allusers      0 Oct 25 14:22 nonexistent
+drwxr-xr-x 2 s3851781 dg-adm-teaching-linux-allusers      0 Oct 20 21:06 testdir
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers    157 Oct 25 14:22 test.notes
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers  22395 Oct 25 13:29 tests.sh
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers  97280 Oct 25 15:42 VSFS
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers  26150 Oct 25 15:40 VSFS.cpp
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers 195112 Oct 25 15:42 VSFS.o
+
+./nonexistent:
+total 1
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers 13 Oct 25 14:22 doesntexist.txt
+
+./testdir:
+total 1
+-rwxr-xr-x 1 s3851781 dg-adm-teaching-linux-allusers 3 Oct 20 21:06 test

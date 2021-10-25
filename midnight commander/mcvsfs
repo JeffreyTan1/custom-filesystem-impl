@@ -1,0 +1,99 @@
+#! /bin/sh
+
+# EXE=../VSFS
+EXE=/home/sh1/S3851781/VSFS
+AWK=awk
+
+# This AWK code is taken from the lslR file from 
+# /usr/libexec/mc/extfs.d 
+# the author is Tomas Novak <tnovak@ipex.cz>
+vsfs_list () {
+  $EXE list $2 | $AWK '
+  BEGIN {
+    dir="";
+    empty=1;
+    rx = "[^ 	]+[ 	]+";
+    # Pattern to match 7 first fields.
+    rx7 = "^" rx rx rx rx rx rx "[^ 	]+[ 	]";
+    # Pattern to match 8 first fields.
+    rx8 = "^" rx rx rx rx rx rx rx "[^ 	]+[ 	]";
+  }
+  /^total\ [0-9]*$/ { next }
+  /^$/ { empty=1; next }
+  empty==1 && /:$/ {
+    empty=0
+    if ($0 ~ /^\//) dir=substr($0, 2);
+    else dir=$0;
+    if (dir ~ /\/:$/) sub(/:$/, "", dir);
+    else sub(/:$/, "/", dir);
+    if (dir ~ /^[ 	]/) dir="./"dir;
+    next;
+  }
+  ( NF > 7 ) {
+    empty=0
+    # gensub() is not portable.
+    name=$0
+    i=index($6, "-")
+    if (i) {
+      sub(rx7, "", name)
+      NF = 7
+      $6=substr($6,i+1)"-"substr($6,1,i-1)
+    }
+    else {
+      sub(rx8, "", name)
+      NF = 8
+    }
+    printf "%s %s%s\n", $0, dir, name
+  }
+  {
+    empty=0
+  }'
+  exit $?
+}
+
+vsfs_copyin ()
+{
+    tmp=$3
+    IF=${tmp#/}
+    $EXE copyin $2 $4 $IF
+    exit $?
+}
+
+vsfs_copyout ()
+{
+    $EXE copyout $2 $3 $4
+    exit $?
+}
+
+vsfs_mkdir ()
+{
+    $EXE mkdir $2 $3/
+    exit $?
+}
+
+vsfs_rm ()
+{
+    $EXE rm $2 $3
+    exit $?
+}
+
+vsfs_rmdir ()
+{
+    $EXE rmdir $2 $3/
+    exit $?
+}
+
+
+
+case "$1" in
+  list) vsfs_list "$@";;
+  copyin) vsfs_copyin "$@" ;;
+  copyout) vsfs_copyout "$@" ;;
+  mkdir) vsfs_mkdir "$@" ;;
+  rm) vsfs_rm "$@" ;;
+  rmdir) vsfs_rmdir "$@" ;;
+  *) exit 1 ;;
+esac
+exit 0
+
+chmod +x mcvsfst.sh
