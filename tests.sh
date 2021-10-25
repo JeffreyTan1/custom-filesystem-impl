@@ -18,6 +18,8 @@ do
     touch $i
 done
 
+[ -e "$FS.gz" ] && rm "$FS.gz"
+
 printf "NOTES V1.0\n" >> $FS
 
 touch invalid.notes
@@ -27,6 +29,8 @@ TEST=1
 ERR=0
 EXPECT=0
 declare -a RESULTS
+
+
 
 printf "Welcome to the test script!\n"
 printf "=========================================\n"
@@ -629,7 +633,7 @@ fi
 printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 printf "\n//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n"
-printf "SECTION 8: notes file validation\n"
+printf "SECTION 8: other \n"
 printf "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n\n"
 printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 # TEST 23
@@ -649,6 +653,45 @@ else
     RESULTS[$TEST-1]=0
 fi
 printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+
+# TEST 24
+((++TEST))
+printf "TEST ($TEST)\n"
+printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+let EXPECT=200
+printf "*Expect exit 200 because .gz file does not exist \n\n"
+printf "Run : $PRG list $FS.gz \n\n"
+$PRG list $FS.gz
+let ERR=$?
+printf "Exit code: $ERR\n"
+if (($EXPECT == $ERR))
+then
+    RESULTS[$TEST-1]=1
+else
+    RESULTS[$TEST-1]=0
+fi
+printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# TEST 25
+((++TEST))
+printf "TEST ($TEST)\n"
+printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+let EXPECT=0
+printf "*Expect exit 0 because .gz file exists\n*Expect gz files behave the same\n\n"
+gzip $FS
+printf "Run : $PRG list $FS.gz \n\n"
+$PRG list $FS.gz
+let ERR=$?
+printf "Exit code: $ERR\n"
+if (($EXPECT == $ERR))
+then
+    RESULTS[$TEST-1]=1
+else
+    RESULTS[$TEST-1]=0
+fi
+printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
 
 printf "\nUNIT TEST RESULTS: \n"
 printf "========================== \n"

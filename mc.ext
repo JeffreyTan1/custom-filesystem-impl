@@ -1,0 +1,4 @@
+# .notes
+regex/\.(notes)$
+        Open=%cd %p/mcvsfs://
+

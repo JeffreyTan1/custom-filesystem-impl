@@ -1,0 +1,831 @@
+Welcome to the test script!
+=========================================
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SECTION 1: copyin
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (1)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0
+*Expect no content line is printed
+
+test.notes Before:
+++++++++++++++++++++
+NOTES V1.0
+++++++++++++++++++++
+
+
+Run : ./VSFS copyin test.notes EF.txt IF.txt
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+++++++++++++++++++++
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (2)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0
+*Expect content line is printed
+*Expect file replaced with old file removed
+
+test.notes Before:
+++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+++++++++++++++++++++
+
+
+Run : ./VSFS copyin test.notes EF.txt IF.txt 
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (3)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 2 because EF doesn't exist
+*Expect no change to FS
+
+test.notes Before:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+
+Run : ./VSFS copyin test.notes nonexistent/doesntexist.txt IF.txt 
+
+External file does not exist, nonexistent/doesntexist.txt.txt  |   Exiting with code 2 : ENOENT
+Exit code: 2
+test.notes After:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (4)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 with intermediate directories created
+
+test.notes Before:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+
+Run : ./VSFS copyin test.notes EF.txt nodirectory/IF.txt 
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (5)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 , file path already exists no intermediate directories created
+*Expect file copied
+
+test.notes Before:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+++++++++++++++++++++
+
+
+Run : ./VSFS copyin test.notes EF.txt somedirectory/IF.txt 
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (6)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 22 because IF path cannot be named "/" , "." , ".." 
+*Expect FS unchanged
+
+test.notes Before:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+
+Run : ./VSFS copyin test.notes EF.txt . 
+
+Internal file cannot be named "/" , "." , ".."    |  Exiting with code 22 : EINVAL
+Exit code: 22
+test.notes After:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (7)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 22 because IF path cannot start or end in '/' 
+*Expect FS unchanged
+
+test.notes Before:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+
+Run : ./VSFS copyin test.notes EF.txt abc/
+
+Internal file path cannot start or end with a '/'   |  Exiting with code 22 : EINVAL
+Exit code: 22
+test.notes After:
+++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SECTION 2: copyout
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (8)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 because EF and intermediate paths will be created
+
+nonexistent/doesntexist.txt Before:
+++++++++++++++++++++++++++++++
+cat: nonexistent/doesntexist.txt: No such file or directory
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS copyout test.notes IF.txt nonexistent/doesntexist.txt 
+
+nonexistent/doesntexist.txt After:
+++++++++++++++++++++++++++++++
+example text
+++++++++++++++++++++++++++++++
+Exit code: 0
+example text
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (9)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 2 because IF doesn't exist
+
+Run : ./VSFS copyout test.notes doesntexist.txt EF.txt
+
+Internal file does not exist, doesntexist.txt  |   Exiting with code 2 : ENOENT
+Exit code: 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (10)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 because IF and EF exist
+*Expect EF changed
+
+EF.txt Before:
+++++++++++++++++++++++++++++++
+Before copyout
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS copyout test.notes IF.txt EF.txt
+
+Exit code: 0
+EF.txt After:
+++++++++++++++++++++++++++++++
+example text
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SECTION 3: mkdir
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (11)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 21 because directory already exists
+*Expect EF unchanged
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS mkdir test.notes somedirectory/ 
+
+Directory already exists, somedirectory/   |   Exiting with code 21 : EISDIR
+Exit code: 21
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (12)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 22 because directory must end in '/' 
+*Expect EF unchanged
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS mkdir test.notes noslashdir 
+
+Internal directory cannot start with '/' and must end with '/'   |  Exiting with code 22 : EINVAL
+Exit code: 22
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (13)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 22 because directory can't start with '/' 
+*Expect EF unchanged
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS mkdir test.notes /slashdir 
+
+Internal directory cannot start with '/' and must end with '/'   |  Exiting with code 22 : EINVAL
+Exit code: 22
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (14)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 because directory unique and valid name 
+*Expect EF changed
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS mkdir test.notes newdir/ 
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (15)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 on valid subdirectory 
+*Expect EF changed
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS mkdir test.notes newdir/subdir/ 
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (16)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 2 on invalid subdirectory 
+*Expect EF unchanged
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS mkdir test.notes nodir/subdir/ 
+
+No valid path for this directory, nodir/subdir/   |   Exiting with code 2 : ENOENT
+Exit code: 2
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SECTION 4: rm
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (17)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 2 when file not found 
+*Expect EF unchanged
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS rm test.notes nofile.txt 
+
+Internal file does not exist, nofile.txt  |   Exiting with code 2 : ENOENT
+Exit code: 2
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (18)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 when file removed 
+*Expect EF changed with #
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS rm test.notes IF.txt 
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+#ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SECTION 5: rmdir
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (19)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 2 when directory doesn't exist 
+*Expect EF unchanged
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+#ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS rmdir test.notes nodir/ 
+
+Dir does not exist, nodir/  |   Exiting with code 2 : ENOENT
+Exit code: 2
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+#ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 when directory exists 
+*Expect directory deleted
+*Expect subdirectories deleted
+*Expect files deleted
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+#ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=newdir/
+=newdir/subdir/
+@newdir/subdir/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS rmdir test.notes newdir/ 
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+#ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+#newdir/
+#newdir/subdir/
+#newdir/subdir/IF.txt
+#ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SECTION 6: defrag
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (21)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 
+*Expect deleted records removed
+*Expect sorted by file tree sequence
+
+test.notes Before:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+#IF.txt
+#ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+#newdir/
+#newdir/subdir/
+#newdir/subdir/IF.txt
+#ZXhhbXBsZSB0ZXh0Cg==
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+
+
+Run : ./VSFS defrag test.notes 
+
+Exit code: 0
+test.notes After:
+++++++++++++++++++++++++++++++
+NOTES V1.0
+@IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=nodirectory/
+@nodirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+=somedirectory/
+@somedirectory/IF.txt
+ ZXhhbXBsZSB0ZXh0Cg==
+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SECTION 7: list
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (22)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 
+*Expect sorted by file tree sequence
+
+Run : ./VSFS list test.notes 
+
+.:
+total 0
+-rwxrwxrwx 1 root root 20 Oct 25 17:52 IF.txt
+drwxrwxrwx 0 root root 0 Oct 25 17:52 nodirectory
+drwxrwxrwx 0 root root 0 Oct 25 17:52 somedirectory
+
+./nodirectory:
+total 0
+-rwxrwxrwx 1 root root 20 Oct 25 17:52 IF.txt
+
+./somedirectory:
+total 0
+-rwxrwxrwx 1 root root 20 Oct 25 17:52 IF.txt
+Exit code: 0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SECTION 8: other 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (23)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 200 because line in notes file doesn't start with on of ' ', '=', '@' 
+
+Run : ./VSFS list invalid.notes 
+
+Invalid .notes file | Exiting with code 200 : ENOTES
+Exit code: 200
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (24)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 200 because .gz file does not exist 
+
+Run : ./VSFS list test.notes.gz 
+
+Invalid .notes file | Exiting with code 200 : ENOTES
+Exit code: 200
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TEST (25)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Expect exit 0 because .gz file exists
+*Expect gz files behave the same
+
+Run : ./VSFS list test.notes.gz 
+
+.:
+total 0
+-rwxrwxrwx 1 root root 20 Oct 25 17:52 IF.txt
+drwxrwxrwx 0 root root 0 Oct 25 17:52 nodirectory
+drwxrwxrwx 0 root root 0 Oct 25 17:52 somedirectory
+
+./nodirectory:
+total 0
+-rwxrwxrwx 1 root root 20 Oct 25 17:52 IF.txt
+
+./somedirectory:
+total 0
+-rwxrwxrwx 1 root root 20 Oct 25 17:52 IF.txt
+Exit code: 0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+UNIT TEST RESULTS: 
+========================== 
+Test 1 : PASS
+Test 2 : PASS
+Test 3 : PASS
+Test 4 : PASS
+Test 5 : PASS
+Test 6 : PASS
+Test 7 : PASS
+Test 8 : PASS
+Test 9 : PASS
+Test 10 : PASS
+Test 11 : PASS
+Test 12 : PASS
+Test 13 : PASS
+Test 14 : PASS
+Test 15 : PASS
+Test 16 : PASS
+Test 17 : PASS
+Test 18 : PASS
+Test 19 : PASS
+Test 20 : PASS
+Test 21 : PASS
+Test 22 : PASS
+Test 23 : PASS
+Test 24 : PASS
+Test 25 : PASS

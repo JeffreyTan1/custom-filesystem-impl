@@ -67,51 +67,70 @@ Errors
 */
 int main(int argc, char **argv)
 {
+    bool gz = false;
     int exit_code;
+    string orgnFile;
 
     if(argc >= 3)
     {
-        int vn = validateNotes(argv[2]);
+        // unzip the filesystem if it ends in .gz
+        orgnFile = argv[2];
+        if(orgnFile.substr(orgnFile.length() - 3, orgnFile.length()) == ".gz" && EFExists(orgnFile) == 0)
+        {
+            gz = true;
+            string unzipCmd = "gunzip " + orgnFile;
+            system(unzipCmd.c_str());
+        }
+        // if not ending in .gz or the .gz file does not exist, then treat the file as a .notes file
+        FS = gz ? orgnFile.substr(0, orgnFile.length() - 3) : orgnFile;
+
+        bool validated = true;
+        int vn = validateNotes(FS);
         if (vn != 0) {
             cerr << "Invalid .notes file | " << "Exiting with code 200 : ENOTES" << endl;
             exit_code = ENOTES;
-            exit(exit_code);
+            validated = false;
         }
 
-        FS = argv[2];
-        string command = argv[1];
-
-        if(command == "list") {
-            exit_code = list();
-        }
-        else if (command == "copyin" && argc == 5) {
-            exit_code = copyin(argv[3], argv[4]);
-        }
-        else if (command == "copyout" && argc == 5) {
-            exit_code = copyout(argv[3], argv[4]);
-        }
-        else if (command == "mkdir" && argc == 4) {
-            exit_code = mkdir(argv[3]);
-        }
-        else if (command == "rm" && argc == 4) {
-            exit_code = rm(argv[3]);
-        }
-        else if (command == "rmdir" && argc == 4) {
-            exit_code = rmdir(argv[3]);
-        }
-        else if (command == "defrag" && argc == 3) {
-            exit_code = defrag();
-        }
-        else
-        {
-            cerr << "Command doesn't exist | " << "Exiting with code 22 : EINVAL" << endl;
-            exit_code = EINVAL;
+        if(validated){
+            string command = argv[1];
+            if(command == "list") {
+                exit_code = list();
+            }
+            else if (command == "copyin" && argc == 5) {
+                exit_code = copyin(argv[3], argv[4]);
+            }
+            else if (command == "copyout" && argc == 5) {
+                exit_code = copyout(argv[3], argv[4]);
+            }
+            else if (command == "mkdir" && argc == 4) {
+                exit_code = mkdir(argv[3]);
+            }
+            else if (command == "rm" && argc == 4) {
+                exit_code = rm(argv[3]);
+            }
+            else if (command == "rmdir" && argc == 4) {
+                exit_code = rmdir(argv[3]);
+            }
+            else if (command == "defrag" && argc == 3) {
+                exit_code = defrag();
+            }
+            else
+            {
+                cerr << "Command doesn't exist | " << "Exiting with code 22 : EINVAL" << endl;
+                exit_code = EINVAL;
+            }  
         }
     }
     else
     {
         cerr << "Too few arguments | " << "Exiting with code 22 : EINVAL" << endl;
         exit_code = EINVAL;
+    }
+
+    if(gz) {
+        string zipCmd = "gzip " + orgnFile.substr(0, orgnFile.length() - 3);
+        system(zipCmd.c_str());
     }
     
     exit(exit_code);
